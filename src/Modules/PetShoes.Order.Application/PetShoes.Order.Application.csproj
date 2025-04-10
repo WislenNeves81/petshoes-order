@@ -6,4 +6,12 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <Folder Include="AppPurchaseOrder\Mapping\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\PetShoes.Order.Domain\PetShoes.Order.Domain.csproj" />
+  </ItemGroup>
+
 </Project>
