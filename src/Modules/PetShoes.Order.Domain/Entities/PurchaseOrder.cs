@@ -1,53 +1,63 @@
-﻿using Marraia.MongoDb.Core;
+﻿using System.Globalization;
+using Marraia.MongoDb.Core;
 
 namespace PetShoes.Order.Domain.Entities
 {
-    public class Shoe
+    public class PurchaseOrder : Entity<Guid>
     {
-        public Guid Id { get; set; }
-        public string Size { get; set; }
-        public int Quantity { get; set; }
-        public decimal Price { get; set; }
-        public Shoe(Guid id, string size, int quantity, decimal price)
+        public PurchaseOrder()
         {
-            Id = id;
-            Size = size;
+            Items = new List<PurchaseOrderItem>();
+        }
+
+        public PurchaseOrder(Guid userId, 
+                                string paymentMethod, 
+                                string shippingAddress,
+                                List<PurchaseOrderItem> items)
+        {
+            Id = Guid.NewGuid();
+            UserId = userId;
+            Items = items ?? new List<PurchaseOrderItem>();
+            PurchaseDate = DateTime.UtcNow;
+            PaymentMethod = paymentMethod;
+            ShippingAddress = shippingAddress;
+            TotalPurchase = Items.Sum(item => item.Price * item.Quantity);
+        }
+
+        public Guid Id { get; private set; }
+        public Guid UserId { get; private set; }
+        public DateTime PurchaseDate { get; private set; }
+        public string PaymentMethod { get; private set; }
+        public string ShippingAddress { get; set; }
+        public bool IsPaymentApproved { get; private set; }
+        public decimal TotalPurchase { get; private set; }
+        public List<PurchaseOrderItem> Items { get; private set; }
+
+        public void ApprovePayment()
+        {
+            IsPaymentApproved = true;
+        }
+
+        public void RejectPayment()
+        {
+            IsPaymentApproved = false;
+        }
+    }
+    public class PurchaseOrderItem
+    {
+        public PurchaseOrderItem(Guid productId, 
+                                    Guid stockId, 
+                                    int quantity, 
+                                    decimal price)
+        {
+            ProductId = productId;
+            StockId = stockId;
             Quantity = quantity;
             Price = price;
         }
-    }
-    public class PurchaseOrder : Entity<Guid>
-    {
-        public PurchaseOrder(Guid customerId,
-                             Shoe shoe)
-        {
-            CustomerId = customerId;
-            Shoe = shoe;
-
-            SetDefaultValues();
-
-        }
-        public Guid CustomerId { get; private set; }
-        public Shoe Shoe { get; private set; }
-        public bool Active { get; private set; }
-        public DateTime CreatedAt { get; private set; } = DateTime.UtcNow;
-        public DateTime UpdatedAt { get; private set; }
-        public bool Paid { get; private set; }
-
-        public void UpdateProduct(Shoe product)
-        {
-            Shoe = product;
-        }
-
-        public void UpdateCustomer(Guid customerId)
-        {
-            CustomerId = customerId;
-        }
-
-        private void SetDefaultValues()
-        {
-            Id = Guid.NewGuid();
-            Active = true;
-        }
+        public Guid ProductId { get; private set; }
+        public Guid StockId { get; private set; }
+        public int Quantity { get; private set; }
+        public decimal Price { get; private set; }
     }
 }

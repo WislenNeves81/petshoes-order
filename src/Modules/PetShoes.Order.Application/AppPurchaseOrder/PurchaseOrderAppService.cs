@@ -14,14 +14,7 @@ namespace PetShoes.Order.Application.AppPurchaseOrder
         }
         public async Task<PurchaseOrderViewModel> InsertAsync(PurchaseOrderInput purchaseOrderInput)
         {
-            //var shoes = purchaseOrderInput.Shoe.Select(p => new Shoe(p.Id, p.Size, p.Quantity, p.Price)).ToList();
-            //var purchaseOrder = new PurchaseOrder(purchaseOrderInput.CustomerId, shoes);
-
-            //await _purchaseOrderRepository
-            //            .Insert(purchaseOrder)
-            //            .ConfigureAwait(false);
-
-            //return new PurchaseOrderViewModel(purchaseOrder.Id, purchaseOrder.CustomerId, purchaseOrder.Shoes, purchaseOrder.Shoes.Sum(s => s.Quantity));
+           
 
             return default;
         }

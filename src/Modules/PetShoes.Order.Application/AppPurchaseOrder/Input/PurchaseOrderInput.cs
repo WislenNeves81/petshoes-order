@@ -2,21 +2,29 @@
 {
     public class PurchaseOrderInput
     {
-        public Guid CustomerId { get; set; }
-        public List<ShoeInput> Shoe { get; set; }
+        public PurchaseOrderInput() { }
 
-        public PurchaseOrderInput(Guid customerId, List<ShoeInput> shoes)
+        public PurchaseOrderInput(Guid userId,
+                                    string paymentMethod,
+                                    string shippingAddress,
+                                    List<OrderItemInput> items)
         {
-            CustomerId = customerId;
-            Shoe = shoes;
+            UserId = userId;
+            PaymentMethod = paymentMethod;
+            ShippingAddress = shippingAddress;
+            Items = items ?? new List<OrderItemInput>();
         }
+        public Guid UserId { get; set; }
+        public string PaymentMethod { get; set; }
+        public string ShippingAddress { get; set; }
+        public List<OrderItemInput> Items { get; set; } = new List<OrderItemInput>();
     }
-
-    public class ShoeInput
+    public class OrderItemInput
     {
-        public Guid Id { get; set; }
-        public string Size { get; set; }
-        public int Quantity { get; set; }
-        public decimal Price { get; set; }
+        public Guid ProductId { get; private set; }
+        public Guid StockId { get; private set; }
+        public int Quantity { get; private set; }
+        public decimal Price { get; private set; }
+
     }
 }
