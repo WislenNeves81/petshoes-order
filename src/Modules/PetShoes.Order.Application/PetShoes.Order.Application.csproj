@@ -14,4 +14,10 @@
     <ProjectReference Include="..\PetShoes.Order.Domain\PetShoes.Order.Domain.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Reference Include="MyProfit.Foundation.Redis">
+      <HintPath>..\..\References\MyProfit.Foundation.Redis.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
 </Project>

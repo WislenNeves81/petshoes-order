@@ -1,0 +1,23 @@
+﻿namespace PetShoes.Order.Domain.Entities.ValueObjects
+{
+    public class StockValueObject
+    {
+        public StockValueObject() { }
+        public StockValueObject(Guid productId, 
+                                Guid stockId, 
+                                int size, 
+                                int quantity)
+        {
+            ProductId = productId;
+            StockId = stockId;
+            Size = size;
+            Quantity = quantity;
+        }
+        public Guid ProductId { get; set; }
+        public Guid StockId { get; set; }
+        public int Size { get; set; }
+        public int Quantity { get; set; }
+        public DateTime UpdatedAt { get; set; }
+
+    }
+}
