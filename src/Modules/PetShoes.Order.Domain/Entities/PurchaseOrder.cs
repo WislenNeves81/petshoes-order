@@ -5,10 +5,7 @@ namespace PetShoes.Order.Domain.Entities
 {
     public class PurchaseOrder : Entity<Guid>
     {
-        public PurchaseOrder()
-        {
-            Items = new List<PurchaseOrderItem>();
-        }
+        
 
         public PurchaseOrder(Guid userId, 
                                 string paymentMethod, 

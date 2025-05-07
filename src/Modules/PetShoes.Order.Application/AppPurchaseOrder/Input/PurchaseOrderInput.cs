@@ -21,10 +21,10 @@
     }
     public class OrderItemInput
     {
-        public Guid ProductId { get; private set; }
-        public Guid StockId { get; private set; }
-        public int Quantity { get; private set; }
-        public decimal Price { get; private set; }
+        public Guid ProductId { get; set; }
+        public Guid StockId { get; set; }
+        public int Quantity { get; set; }
+        public decimal Price { get; set; }
 
     }
 }
