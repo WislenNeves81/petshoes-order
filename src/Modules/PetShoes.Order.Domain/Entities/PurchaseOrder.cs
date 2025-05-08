@@ -12,7 +12,7 @@ namespace PetShoes.Order.Domain.Entities
                                 string shippingAddress,
                                 List<PurchaseOrderItem> items)
         {
-            Id = Guid.NewGuid();
+            //Id = Guid.NewGuid();
             UserId = userId;
             Items = items ?? new List<PurchaseOrderItem>();
             PurchaseDate = DateTime.UtcNow;
@@ -21,7 +21,7 @@ namespace PetShoes.Order.Domain.Entities
             TotalPurchase = Items.Sum(item => item.Price * item.Quantity);
         }
 
-        public Guid Id { get; private set; }
+        //public Guid Id { get; private set; }
         public Guid UserId { get; private set; }
         public DateTime PurchaseDate { get; private set; }
         public string PaymentMethod { get; private set; }
@@ -42,6 +42,7 @@ namespace PetShoes.Order.Domain.Entities
     }
     public class PurchaseOrderItem
     {
+        public PurchaseOrderItem() {}
         public PurchaseOrderItem(Guid productId, 
                                     Guid stockId, 
                                     int quantity, 

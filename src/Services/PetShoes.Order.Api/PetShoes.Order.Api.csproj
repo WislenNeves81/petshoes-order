@@ -1,22 +1,30 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
 
-  <PropertyGroup>
-    <TargetFramework>net9.0</TargetFramework>
-    <Nullable>enable</Nullable>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <UserSecretsId>d55982eb-82a1-4b18-b2a4-10748c59f7a1</UserSecretsId>
-    <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
-    <DockerfileContext>..\..\..</DockerfileContext>
-  </PropertyGroup>
+	<PropertyGroup>
+		<TargetFramework>net9.0</TargetFramework>
+		<Nullable>enable</Nullable>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<UserSecretsId>d55982eb-82a1-4b18-b2a4-10748c59f7a1</UserSecretsId>
+		<DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+		<DockerfileContext>..\..\..</DockerfileContext>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.1" />
-    <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.21.0" />
-    <PackageReference Include="Swashbuckle.AspNetCore.SwaggerUI" Version="8.1.0" />
-  </ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.1" />
+		<PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.21.0" />
+		<PackageReference Include="Scalar.AspNetCore" Version="2.2.7" />
+		<PackageReference Include="Swashbuckle.AspNetCore.SwaggerUI" Version="8.1.0" />
+		<PackageReference Include="StackExchange.Redis" Version="2.8.31" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\..\Modules\PetShoes.Order.Application\PetShoes.Order.Application.csproj" />
-  </ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\..\Modules\PetShoes.Order.Application\PetShoes.Order.Application.csproj" />
+		<ProjectReference Include="..\..\Modules\PetShoes.Order.Infrastructure.IoC\PetShoes.Order.Infrastructure.IoC.csproj" />
+	</ItemGroup>
+	<ItemGroup>
+		<Reference Include="MyProfit.Foundation.Redis">
+			<HintPath>..\..\References\MyProfit.Foundation.Redis.dll</HintPath>
+		</Reference>
+	</ItemGroup>
 
 </Project>

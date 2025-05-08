@@ -4,7 +4,8 @@ namespace PetShoes.Order.Domain.Interfaces
 {
     public interface IPurchaseOrderRepository
     {
-        Task Insert(PurchaseOrder purchaseOrder);
-       
+        Task InsertAsync(PurchaseOrder purchaseOrder);
+
+
     }
 }

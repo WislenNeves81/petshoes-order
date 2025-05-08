@@ -7,7 +7,7 @@ using PetShoes.Order.Domain.Entities;
 using PetShoes.Order.Domain.Entities.ValueObjects;
 using PetShoes.Order.Domain.Interfaces;
 
-namespace PetShoes.Order.Application.AppPurchaseOrder
+namespace PetShoes.Order.Application
 {
     public class PurchaseOrderAppService : IPurchaseOrderAppService
     {
@@ -21,13 +21,13 @@ namespace PetShoes.Order.Application.AppPurchaseOrder
 
         public async Task<PurchaseOrderViewModel> InsertAsync(PurchaseOrderInput purchaseOrderInput)
         {
-           
-            var purchaseOrderItem = new List<PurchaseOrderItem>((IEnumerable<PurchaseOrderItem>)purchaseOrderInput.Items);
+
+            var purchaseOrderItems = purchaseOrderInput.Items.Select(input => new PurchaseOrderItem(input.ProductId,input.StockId,input.Quantity,input.Price));
 
             var purchaseOrder = new PurchaseOrder(purchaseOrderInput.UserId,
                                                         purchaseOrderInput.PaymentMethod,
                                                         purchaseOrderInput.ShippingAddress,
-                                                        purchaseOrderItem);
+                                                        purchaseOrderItems.ToList());
             if (purchaseOrderInput.Items.Count == 0)
                 throw new Exception("Nenhum item foi adicionado ao pedido.");
 
@@ -36,32 +36,29 @@ namespace PetShoes.Order.Application.AppPurchaseOrder
                 if (item.Quantity <= 0)
                     throw new Exception("A quantidade do item deve ser maior que zero.");
 
-                var keyStock = $"Stock :: Product ID: {item.ProductId} - Item ID: {item.StockId}";
+                var keyStock = $"stock:productId:{item.ProductId}:stockId:{item.StockId}";
 
                 var stockItem = await GetStockByCacheAsync(keyStock).ConfigureAwait(false);
 
                 if (StockValidation(stockItem, item.Quantity))
                 {
-                    stockItem.Quantity -= item.Quantity;
+                    stockItem.UpdateQuantity(item.Quantity);
+                    stockItem.UpdatedAt = DateTime.Now;
 
-                    var keyShoeCatalog = $"Stock :: Product ID: {stockItem.ProductId} - Item ID: {stockItem.StockId}";
+                    var keyShoeCatalog = $"stock:productId:{stockItem.ProductId}:stockId:{stockItem.Id}";
 
                     await _cacheRepository
-                             .InsertAsync<StockValueObject>(keyShoeCatalog, stockItem)
+                             .InsertAsync(keyShoeCatalog, stockItem)
                              .ConfigureAwait(false);
-
                 }
-
             }
 
+            await _purchaseOrderRepository
+                            .InsertAsync(purchaseOrder)
+                            .ConfigureAwait(false);
 
-            //BUSCAR NO REDIS OS PRODUTOS E VERIFICAR SE TEM EM ESTOQUE
+            //var purchaseOrderViewModel = purchaseOrder.ToViewModel();
 
-            //EM CASO POSITIVO, ATUALIZAR NO REDIS E NO BANCO DE DADOS
-
-            //EM CASO NEGATIVO, RETORNAR ERRO
-
-            //INSERIR NO BANCO DE DADOS
 
             //ENVIAR EMAIL INFORMANDO A COMPRA
 
@@ -77,13 +74,13 @@ namespace PetShoes.Order.Application.AppPurchaseOrder
         }
 
         #region 
-        public async Task<StockValueObject> GetStockByCacheAsync(string keyStock)
+        public async Task<StockValueObject?> GetStockByCacheAsync(string keyStock)
         {
             var currentStock = await _cacheRepository
-                                        .GetByKeyAsync<IEnumerable<StockValueObject>>(keyStock)
+                                        .GetByKeyAsync<StockValueObject>(keyStock)
                                         .ConfigureAwait(false);
 
-            return currentStock?.FirstOrDefault();
+            return currentStock;
         }
         public bool StockValidation(StockValueObject stockItem, int quantity)
         {
