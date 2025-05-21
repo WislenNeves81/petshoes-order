@@ -1,4 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Marraia.Notifications.Base;
+using Marraia.Notifications.Models;
+using MediatR;
+using Microsoft.AspNetCore.Mvc;
 using PetShoes.Order.Application.AppPurchaseOrder.Input;
 using PetShoes.Order.Application.AppPurchaseOrder.Interface;
 
@@ -6,11 +9,13 @@ namespace PetShoes.Order.Api.Controllers
 {
     [Route("petshoes/api/[controller]")]
     [ApiController]
-    public class OrderController : ControllerBase
+    public class OrderController : BaseController
     {
         private readonly IPurchaseOrderAppService _purchaseOrderAppService;
 
-        public OrderController(IPurchaseOrderAppService purchaseOrderAppService)
+        public OrderController(IPurchaseOrderAppService purchaseOrderAppService, 
+                               INotificationHandler<DomainNotification> notification)
+        : base(notification)
         {
             _purchaseOrderAppService = purchaseOrderAppService;
         }
@@ -25,7 +30,7 @@ namespace PetShoes.Order.Api.Controllers
                                             .InsertAsync(purchaseOrderInput)
                                             .ConfigureAwait(false);
 
-            return Ok(itemStock);
+            return OkOrNotFound(itemStock);
         }
     }
 }

@@ -1,4 +1,6 @@
-﻿using Marraia.MongoDb.Configurations;
+﻿using Adapter.Stock.Sync.Configurations;
+using Adapter.Stock.Sync.Interfaces;
+using Marraia.MongoDb.Configurations;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using MyProfit.Foundation.Redis.Configurations;
@@ -14,6 +16,7 @@ namespace PetShoes.Order.Infrastructure.IoC.Repository
             service.AddMongoDb();
             service.AddRedis(configuration);
             service.AddScoped<IPurchaseOrderRepository, PurchaseOrderRepository>();
+            service.AddStockSync(configuration.GetSection("LegacySync:Url").Value!);
         }
     }
 }

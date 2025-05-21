@@ -7,10 +7,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="AppPurchaseOrder\Mapping\" />
+    <PackageReference Include="Marraia.Notifications" Version="2.0.0" />
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\Adapters\Adapter.Stock.Sync\Adapter.Stock.Sync.csproj" />
     <ProjectReference Include="..\PetShoes.Order.Domain\PetShoes.Order.Domain.csproj" />
   </ItemGroup>
 

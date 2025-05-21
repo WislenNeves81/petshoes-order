@@ -1,7 +1,10 @@
-﻿using Microsoft.VisualBasic;
+﻿using Adapter.Stock.Sync.Interfaces;
+using Adapter.Stock.Sync.Model;
+using Marraia.Notifications.Interfaces;
 using MyProfit.Foundation.Redis.Repositories.Interfaces;
 using PetShoes.Order.Application.AppPurchaseOrder.Input;
 using PetShoes.Order.Application.AppPurchaseOrder.Interface;
+using PetShoes.Order.Application.AppPurchaseOrder.Mapping;
 using PetShoes.Order.Application.AppPurchaseOrder.ViewModel;
 using PetShoes.Order.Domain.Entities;
 using PetShoes.Order.Domain.Entities.ValueObjects;
@@ -13,32 +16,56 @@ namespace PetShoes.Order.Application
     {
         private readonly IPurchaseOrderRepository _purchaseOrderRepository;
         private readonly ICacheRepository _cacheRepository;
-        public PurchaseOrderAppService(IPurchaseOrderRepository purchaseOrderRepository, ICacheRepository cacheRepository)
+        private readonly ISmartNotification _smartNotification;
+        private readonly IStockSyncAdapter _stockSyncAdapter;
+        public PurchaseOrderAppService(IPurchaseOrderRepository purchaseOrderRepository,
+                                        ICacheRepository cacheRepository,
+                                        ISmartNotification smartNotification,
+                                        IStockSyncAdapter stockSyncAdapter)
         {
             _purchaseOrderRepository = purchaseOrderRepository;
             _cacheRepository = cacheRepository;
+            _smartNotification = smartNotification;
+            _stockSyncAdapter = stockSyncAdapter;
+
         }
 
         public async Task<PurchaseOrderViewModel> InsertAsync(PurchaseOrderInput purchaseOrderInput)
         {
 
-            var purchaseOrderItems = purchaseOrderInput.Items.Select(input => new PurchaseOrderItem(input.ProductId,input.StockId,input.Quantity,input.Price));
+            var purchaseOrderItems = purchaseOrderInput.Items.Select(input => new PurchaseOrderItem(input.ProductId, input.StockId, input.Quantity, input.Price));
 
             var purchaseOrder = new PurchaseOrder(purchaseOrderInput.UserId,
                                                         purchaseOrderInput.PaymentMethod,
                                                         purchaseOrderInput.ShippingAddress,
                                                         purchaseOrderItems.ToList());
             if (purchaseOrderInput.Items.Count == 0)
-                throw new Exception("Nenhum item foi adicionado ao pedido.");
+            {
+                _smartNotification
+                   .NewNotificationConflict($"Nenhum item foi adicionado ao pedido {purchaseOrder.Id}.");
+
+                return default!;
+            }
 
             foreach (var item in purchaseOrderInput.Items)
             {
                 if (item.Quantity <= 0)
-                    throw new Exception("A quantidade do item deve ser maior que zero.");
+                {
+                    _smartNotification.NewNotificationConflict($"A quantidade do item {item.ProductId} deve ser maior que zero.");
+
+                    return default!;
+                }
 
                 var keyStock = $"stock:productId:{item.ProductId}:stockId:{item.StockId}";
 
                 var stockItem = await GetStockByCacheAsync(keyStock).ConfigureAwait(false);
+
+                if (stockItem == null)
+                {
+                    _smartNotification.NewNotificationConflict($"O item {item.ProductId} não foi encontrado no estoque.");
+
+                    return default!;
+                }
 
                 if (StockValidation(stockItem, item.Quantity))
                 {
@@ -51,20 +78,24 @@ namespace PetShoes.Order.Application
                              .InsertAsync(keyShoeCatalog, stockItem)
                              .ConfigureAwait(false);
                 }
+
+                await _stockSyncAdapter
+                            .PutChangeStockAsync(stockItem.Id, new SyncStockChangeInput(stockItem.Quantity))
+                            .ConfigureAwait(false);
+
             }
 
             await _purchaseOrderRepository
                             .InsertAsync(purchaseOrder)
                             .ConfigureAwait(false);
 
-            //var purchaseOrderViewModel = purchaseOrder.ToViewModel();
+            var purchaseOrderViewModel = purchaseOrder.ToViewModel();
 
+            //ENVIAR EMAIL INFORMANDO A COMPRA E O STATUS DO PAGAMENTO
 
-            //ENVIAR EMAIL INFORMANDO A COMPRA
+            //ENVIAR PARA CONSUMER DE PGTO E AGUARDA O RETORNO
 
-            //VALIDAR O PAGAMENTO
-
-            //ATUALIZAR O STATUS DO PAGAMENTO
+            //ENVIA EMAIL COM O STATUS DO PGTO
 
             //ATUALIZAR O STATUS DO PEDIDO
 
@@ -85,9 +116,9 @@ namespace PetShoes.Order.Application
         public bool StockValidation(StockValueObject stockItem, int quantity)
         {
             if (stockItem == null)
-                throw new Exception($"O item {stockItem.ProductId} não foi encontrado no estoque.");
-            if (stockItem.Quantity < quantity)
-                throw new Exception($"O item {stockItem.ProductId} não possui estoque suficiente. Estoque atual: {stockItem.Quantity} - Quantidade solicitada: {quantity}");
+                _smartNotification.NewNotificationConflict($"O item não foi encontrado no estoque.");
+            if (stockItem!.Quantity < quantity)
+                _smartNotification.NewNotificationConflict($"O item {stockItem.ProductId} não possui estoque suficiente. Estoque atual: {stockItem.Quantity} - Quantidade solicitada: {quantity}");
             return true;
         }
         #endregion
