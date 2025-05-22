@@ -67,6 +67,7 @@ namespace PetShoes.Order.Application
                     return default!;
                 }
 
+                //TODO :: MOVER ESSA RESPONSABILIDADE PARA O STOCK
                 if (StockValidation(stockItem, item.Quantity))
                 {
                     stockItem.UpdateQuantity(item.Quantity);
@@ -78,6 +79,7 @@ namespace PetShoes.Order.Application
                              .InsertAsync(keyShoeCatalog, stockItem)
                              .ConfigureAwait(false);
                 }
+                //TODO :: MOVER ESSA RESPONSABILIDADE PARA O STOCK
 
                 await _stockSyncAdapter
                             .PutChangeStockAsync(stockItem.Id, new SyncStockChangeInput(stockItem.Quantity))
@@ -89,17 +91,19 @@ namespace PetShoes.Order.Application
                             .InsertAsync(purchaseOrder)
                             .ConfigureAwait(false);
 
-            var purchaseOrderViewModel = purchaseOrder.ToViewModel();
+
 
             //ENVIAR EMAIL INFORMANDO A COMPRA E O STATUS DO PAGAMENTO
 
-            //ENVIAR PARA CONSUMER DE PGTO E AGUARDA O RETORNO
+            //ENVIAR PARA CONSUMER DE PGTO E AGUARDA O RETORNO****
 
             //ENVIA EMAIL COM O STATUS DO PGTO
 
             //ATUALIZAR O STATUS DO PEDIDO
 
             //ENVIAR EMAIL DE PAGAMENTO APROVADO
+
+            var purchaseOrderViewModel = purchaseOrder.ToViewModel();
 
             return default;
         }

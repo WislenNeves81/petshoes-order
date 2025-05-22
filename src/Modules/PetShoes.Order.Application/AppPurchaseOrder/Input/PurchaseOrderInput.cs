@@ -1,4 +1,6 @@
-﻿namespace PetShoes.Order.Application.AppPurchaseOrder.Input
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace PetShoes.Order.Application.AppPurchaseOrder.Input
 {
     public class PurchaseOrderInput
     {
@@ -15,6 +17,7 @@
             Items = items ?? new List<OrderItemInput>();
         }
         public Guid UserId { get; set; }
+        [Required]
         public string PaymentMethod { get; set; }
         public string ShippingAddress { get; set; }
         public List<OrderItemInput> Items { get; set; } = new List<OrderItemInput>();
