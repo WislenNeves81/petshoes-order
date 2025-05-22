@@ -13,16 +13,23 @@ namespace Adapter.Stock.Sync.Gateway
             _stockSyncRequest = stockSyncRequest;
             _asyncPolicy = asyncPolicy;
         }
-        public async Task<ResponseStock<Guid>> PutStockAsync(Guid stockId, SyncStockChangeInput stockChangeInput)
+        public async Task<ResponseStock<Guid>> PutStockAsync(Guid itemStockId, SyncStockChangeInput stockInput)
         {
             var response = new ResponseStock<Guid>();
 
             try
             {
                 var request = await _asyncPolicy
-                                        .ExecuteAsync(async () => await _stockSyncRequest
-                                                                            .PutStockAsync(stockId, stockChangeInput)
-                                                                            .ConfigureAwait(false));
+                    .ExecuteAsync(async () => await _stockSyncRequest
+                        .PutStockAsync(itemStockId, stockInput)
+                        .ConfigureAwait(false));
+
+
+                // Log detalhado do request
+                Console.WriteLine($"StatusCode: {request.StatusCode}");
+                Console.WriteLine($"IsSuccessStatusCode: {request.IsSuccessStatusCode}");
+                Console.WriteLine($"Error: {request.Error}");
+                Console.WriteLine($"Content: {System.Text.Json.JsonSerializer.Serialize(request.Content)}");
 
                 if (request.IsSuccessStatusCode)
                     response.WithSuccess(request.Content!.Data.Id);
@@ -36,7 +43,7 @@ namespace Adapter.Stock.Sync.Gateway
                 response.WithError(ex.Message);
             }
 
-            throw new NotImplementedException();
+            return response;
         }
     }
 }

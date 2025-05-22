@@ -5,7 +5,7 @@ namespace Adapter.Stock.Sync.Gateway.Interfaces
 {
     internal interface IStockSyncRequest
     {
-        [Put("/Stock")]
-        Task<ApiResponse<SyncBaseResponse<StockDefaultResponse>>> PutStockAsync([Query] Guid stockId, [Body] SyncStockChangeInput stockChangeInput);
+        [Put("/Stock/{itemStockId}")]
+        Task<ApiResponse<SyncBaseResponse<StockDefaultResponse>>> PutStockAsync(Guid itemStockId, [Body] SyncStockChangeInput stockInput);
     }
 }

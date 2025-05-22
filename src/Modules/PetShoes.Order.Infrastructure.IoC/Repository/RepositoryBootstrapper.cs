@@ -16,7 +16,7 @@ namespace PetShoes.Order.Infrastructure.IoC.Repository
             service.AddMongoDb();
             service.AddRedis(configuration);
             service.AddScoped<IPurchaseOrderRepository, PurchaseOrderRepository>();
-            service.AddStockSync(configuration.GetSection("LegacySync:Url").Value!);
+            service.AddStockSync(configuration.GetSection("StockSync:Url").Value!);
         }
     }
 }
