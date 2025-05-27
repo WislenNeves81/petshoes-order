@@ -67,22 +67,8 @@ namespace PetShoes.Order.Application
                     return default!;
                 }
 
-                //TODO :: MOVER ESSA RESPONSABILIDADE PARA O STOCK
-                if (StockValidation(stockItem, item.Quantity))
-                {
-                    stockItem.UpdateQuantity(item.Quantity);
-                    stockItem.UpdatedAt = DateTime.Now;
-
-                    var keyShoeCatalog = $"stock:productId:{stockItem.ProductId}:stockId:{stockItem.Id}";
-
-                    await _cacheRepository
-                             .InsertAsync(keyShoeCatalog, stockItem)
-                             .ConfigureAwait(false);
-                }
-                //TODO :: MOVER ESSA RESPONSABILIDADE PARA O STOCK
-
                 await _stockSyncAdapter
-                            .PutChangeStockAsync(stockItem.Id, new SyncStockChangeInput(stockItem.Quantity))
+                            .PutChangeStockAsync(stockItem.Id, new SyncStockChangeInput(item.Quantity))
                             .ConfigureAwait(false);
 
             }
@@ -90,8 +76,6 @@ namespace PetShoes.Order.Application
             await _purchaseOrderRepository
                             .InsertAsync(purchaseOrder)
                             .ConfigureAwait(false);
-
-
 
             //ENVIAR EMAIL INFORMANDO A COMPRA E O STATUS DO PAGAMENTO
 
@@ -105,7 +89,7 @@ namespace PetShoes.Order.Application
 
             var purchaseOrderViewModel = purchaseOrder.ToViewModel();
 
-            return default;
+            return purchaseOrderViewModel;
         }
 
         #region 
@@ -116,14 +100,6 @@ namespace PetShoes.Order.Application
                                         .ConfigureAwait(false);
 
             return currentStock;
-        }
-        public bool StockValidation(StockValueObject stockItem, int quantity)
-        {
-            if (stockItem == null)
-                _smartNotification.NewNotificationConflict($"O item não foi encontrado no estoque.");
-            if (stockItem!.Quantity < quantity)
-                _smartNotification.NewNotificationConflict($"O item {stockItem.ProductId} não possui estoque suficiente. Estoque atual: {stockItem.Quantity} - Quantidade solicitada: {quantity}");
-            return true;
         }
         #endregion
     }

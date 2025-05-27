@@ -1,7 +1,4 @@
-﻿using Marraia.Notifications;
-using Marraia.Notifications.Configurations;
-using Marraia.Notifications.Interfaces;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using PetShoes.Order.Application;
 using PetShoes.Order.Application.AppPurchaseOrder.Interface;
 
