@@ -11,6 +11,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\..\Adapter.Email\Adapter.Email.csproj" />
     <ProjectReference Include="..\PetShoes.Order.Application\PetShoes.Order.Application.csproj" />
     <ProjectReference Include="..\PetShoes.Order.Infrastructure.Repositories\PetShoes.Order.Infrastructure.Repositories.csproj" />
   </ItemGroup>

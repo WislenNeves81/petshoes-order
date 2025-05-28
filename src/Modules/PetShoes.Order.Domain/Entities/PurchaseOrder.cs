@@ -5,14 +5,11 @@ namespace PetShoes.Order.Domain.Entities
 {
     public class PurchaseOrder : Entity<Guid>
     {
-        
-
         public PurchaseOrder(Guid userId, 
                                 string paymentMethod, 
                                 string shippingAddress,
                                 List<PurchaseOrderItem> items)
         {
-            //Id = Guid.NewGuid();
             UserId = userId;
             Items = items ?? new List<PurchaseOrderItem>();
             PurchaseDate = DateTime.UtcNow;
@@ -20,8 +17,6 @@ namespace PetShoes.Order.Domain.Entities
             ShippingAddress = shippingAddress;
             TotalPurchase = Items.Sum(item => item.Price * item.Quantity);
         }
-
-        //public Guid Id { get; private set; }
         public Guid UserId { get; private set; }
         public DateTime PurchaseDate { get; private set; }
         public string PaymentMethod { get; private set; }
@@ -29,12 +24,10 @@ namespace PetShoes.Order.Domain.Entities
         public bool IsPaymentApproved { get; private set; }
         public decimal TotalPurchase { get; private set; }
         public List<PurchaseOrderItem> Items { get; private set; }
-
         public void ApprovePayment()
         {
             IsPaymentApproved = true;
         }
-
         public void RejectPayment()
         {
             IsPaymentApproved = false;

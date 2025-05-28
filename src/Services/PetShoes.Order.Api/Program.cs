@@ -1,6 +1,5 @@
 using Marraia.Notifications.Configurations;
 using PetShoes.Order.Infrastructure.IoC;
-using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
 

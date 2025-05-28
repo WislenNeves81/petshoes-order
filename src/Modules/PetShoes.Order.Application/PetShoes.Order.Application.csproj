@@ -11,6 +11,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\..\Adapter.Email\Adapter.Email.csproj" />
     <ProjectReference Include="..\..\Adapters\Adapter.Stock.Sync\Adapter.Stock.Sync.csproj" />
     <ProjectReference Include="..\PetShoes.Order.Domain\PetShoes.Order.Domain.csproj" />
   </ItemGroup>

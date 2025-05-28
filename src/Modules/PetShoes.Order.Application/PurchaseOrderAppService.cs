@@ -1,4 +1,5 @@
-﻿using Adapter.Stock.Sync.Interfaces;
+﻿using Adapter.Email.Interfaces;
+using Adapter.Stock.Sync.Interfaces;
 using Adapter.Stock.Sync.Model;
 using Marraia.Notifications.Interfaces;
 using MyProfit.Foundation.Redis.Repositories.Interfaces;
@@ -18,15 +19,18 @@ namespace PetShoes.Order.Application
         private readonly ICacheRepository _cacheRepository;
         private readonly ISmartNotification _smartNotification;
         private readonly IStockSyncAdapter _stockSyncAdapter;
+        private readonly IEmailNotificationAdapter _emailNotificationAdapter;
         public PurchaseOrderAppService(IPurchaseOrderRepository purchaseOrderRepository,
                                         ICacheRepository cacheRepository,
                                         ISmartNotification smartNotification,
-                                        IStockSyncAdapter stockSyncAdapter)
+                                        IStockSyncAdapter stockSyncAdapter,
+                                        IEmailNotificationAdapter emailNotificationAdapter)
         {
             _purchaseOrderRepository = purchaseOrderRepository;
             _cacheRepository = cacheRepository;
             _smartNotification = smartNotification;
             _stockSyncAdapter = stockSyncAdapter;
+            _emailNotificationAdapter = emailNotificationAdapter;
 
         }
 
@@ -76,6 +80,9 @@ namespace PetShoes.Order.Application
             await _purchaseOrderRepository
                             .InsertAsync(purchaseOrder)
                             .ConfigureAwait(false);
+
+            _emailNotificationAdapter.SendPurchaseOrderCreatedMail("Wislen", "wislen.neves@gmail.com");
+                   
 
             //ENVIAR EMAIL INFORMANDO A COMPRA E O STATUS DO PAGAMENTO
 
