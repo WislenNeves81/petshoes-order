@@ -8,6 +8,8 @@
 
   <ItemGroup>
     <PackageReference Include="Marraia.Notifications" Version="2.0.0" />
+    <PackageReference Include="MassTransit" Version="8.4.1" />
+    <PackageReference Include="RabbitMQ.Client" Version="7.1.2" />
   </ItemGroup>
 
   <ItemGroup>

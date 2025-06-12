@@ -24,13 +24,6 @@ namespace Adapter.Stock.Sync.Gateway
                         .PutStockAsync(itemStockId, stockInput)
                         .ConfigureAwait(false));
 
-
-                // Log detalhado do request
-                Console.WriteLine($"StatusCode: {request.StatusCode}");
-                Console.WriteLine($"IsSuccessStatusCode: {request.IsSuccessStatusCode}");
-                Console.WriteLine($"Error: {request.Error}");
-                Console.WriteLine($"Content: {System.Text.Json.JsonSerializer.Serialize(request.Content)}");
-
                 if (request.IsSuccessStatusCode)
                     response.WithSuccess(request.Content!.Data.Id);
                 else

@@ -1,7 +1,7 @@
 ﻿using Adapter.Email.Interfaces;
 using Adapter.Stock.Sync.Interfaces;
-using Adapter.Stock.Sync.Model;
 using Marraia.Notifications.Interfaces;
+using MassTransit;
 using MyProfit.Foundation.Redis.Repositories.Interfaces;
 using PetShoes.Order.Application.AppPurchaseOrder.Input;
 using PetShoes.Order.Application.AppPurchaseOrder.Interface;
@@ -20,17 +20,20 @@ namespace PetShoes.Order.Application
         private readonly ISmartNotification _smartNotification;
         private readonly IStockSyncAdapter _stockSyncAdapter;
         private readonly IEmailNotificationAdapter _emailNotificationAdapter;
+        private readonly IPublishEndpoint _publishEndpoint;
         public PurchaseOrderAppService(IPurchaseOrderRepository purchaseOrderRepository,
                                         ICacheRepository cacheRepository,
                                         ISmartNotification smartNotification,
                                         IStockSyncAdapter stockSyncAdapter,
-                                        IEmailNotificationAdapter emailNotificationAdapter)
+                                        IEmailNotificationAdapter emailNotificationAdapter,
+                                        IPublishEndpoint publishEndpoint)
         {
             _purchaseOrderRepository = purchaseOrderRepository;
             _cacheRepository = cacheRepository;
             _smartNotification = smartNotification;
             _stockSyncAdapter = stockSyncAdapter;
             _emailNotificationAdapter = emailNotificationAdapter;
+            _publishEndpoint = publishEndpoint;
 
         }
 
@@ -51,40 +54,45 @@ namespace PetShoes.Order.Application
                 return default!;
             }
 
-            foreach (var item in purchaseOrderInput.Items)
-            {
-                if (item.Quantity <= 0)
-                {
-                    _smartNotification.NewNotificationConflict($"A quantidade do item {item.ProductId} deve ser maior que zero.");
+            //foreach (var item in purchaseOrderInput.Items)
+            //{
+            //    if (item.Quantity <= 0)
+            //    {
+            //        _smartNotification.NewNotificationConflict($"A quantidade do item {item.ProductId} deve ser maior que zero.");
 
-                    return default!;
-                }
+            //        return default!;
+            //    }
 
-                var keyStock = $"stock:productId:{item.ProductId}:stockId:{item.StockId}";
+            //    var keyStock = $"stock:productId:{item.ProductId}:stockId:{item.StockId}";
 
-                var stockItem = await GetStockByCacheAsync(keyStock).ConfigureAwait(false);
+            //    var stockItem = await GetStockByCacheAsync(keyStock).ConfigureAwait(false);
 
-                if (stockItem == null)
-                {
-                    _smartNotification.NewNotificationConflict($"O item {item.ProductId} não foi encontrado no estoque.");
+            //    if (stockItem == null)
+            //    {
+            //        _smartNotification.NewNotificationConflict($"O item {item.ProductId} não foi encontrado no estoque.");
 
-                    return default!;
-                }
+            //        return default!;
+            //    }
 
-                await _stockSyncAdapter
-                            .PutChangeStockAsync(stockItem.Id, new SyncStockChangeInput(item.Quantity))
-                            .ConfigureAwait(false);
+            //    await _stockSyncAdapter
+            //                .PutChangeStockAsync(stockItem.Id, new SyncStockChangeInput(item.Quantity))
+            //                .ConfigureAwait(false);
 
-            }
+            //}
 
             await _purchaseOrderRepository
                             .InsertAsync(purchaseOrder)
                             .ConfigureAwait(false);
 
-            _emailNotificationAdapter.SendPurchaseOrderCreatedMail("Wislen", "wislen.neves@gmail.com");
-                   
-
+            //_emailNotificationAdapter.SendPurchaseOrderCreatedMail("Wislen", "wislen.neves@gmail.com");
             //ENVIAR EMAIL INFORMANDO A COMPRA E O STATUS DO PAGAMENTO
+
+            await _publishEndpoint
+                            .Publish(new PurchaseOrderCreatedEvent("CreditCard"))
+                            .ConfigureAwait(false);
+
+
+            // enviar o pedido para a fila
 
             //ENVIAR PARA CONSUMER DE PGTO E AGUARDA O RETORNO****
 

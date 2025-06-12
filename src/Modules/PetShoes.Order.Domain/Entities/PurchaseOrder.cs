@@ -13,13 +13,13 @@ namespace PetShoes.Order.Domain.Entities
             UserId = userId;
             Items = items ?? new List<PurchaseOrderItem>();
             PurchaseDate = DateTime.UtcNow;
-            PaymentMethod = paymentMethod;
+            PaymentType = paymentMethod;
             ShippingAddress = shippingAddress;
             TotalPurchase = Items.Sum(item => item.Price * item.Quantity);
         }
         public Guid UserId { get; private set; }
         public DateTime PurchaseDate { get; private set; }
-        public string PaymentMethod { get; private set; }
+        public string PaymentType { get; set; } = "CreditCard";
         public string ShippingAddress { get; set; }
         public bool IsPaymentApproved { get; private set; }
         public decimal TotalPurchase { get; private set; }
@@ -50,5 +50,13 @@ namespace PetShoes.Order.Domain.Entities
         public Guid StockId { get; private set; }
         public int Quantity { get; private set; }
         public decimal Price { get; private set; }
+    }
+    public class PurchaseOrderCreatedEvent
+    {
+        public string PaymentType { get; set; }
+        public PurchaseOrderCreatedEvent(string paymentType)
+        {
+            PaymentType = paymentType;
+        }
     }
 }

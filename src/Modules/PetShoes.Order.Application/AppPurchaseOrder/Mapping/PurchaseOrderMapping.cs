@@ -12,7 +12,7 @@ namespace PetShoes.Order.Application.AppPurchaseOrder.Mapping
             {
                 Id = purchaseOrder.Id,
                 UserId = purchaseOrder.UserId,
-                PaymentMethod = purchaseOrder.PaymentMethod,
+                PaymentMethod = purchaseOrder.PaymentType,
                 ShippingAddress = purchaseOrder.ShippingAddress,
                 TotalPurchase = purchaseOrder.TotalPurchase,
                 Items = purchaseOrder.Items.Select(item => new PurchaseOrderItemViewModel

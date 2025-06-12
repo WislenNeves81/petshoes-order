@@ -1,4 +1,5 @@
 using Marraia.Notifications.Configurations;
+using MassTransit;
 using PetShoes.Order.Infrastructure.IoC;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -16,6 +17,19 @@ builder.Services.AddCors(options =>
 });
 
 builder.Services.AddSmartNotification();
+
+builder.Services.AddMassTransit(x =>
+{
+    x.UsingRabbitMq((context, cfg) =>
+    {
+        var configuration = context.GetRequiredService<IConfiguration>();
+        cfg.Host(configuration.GetSection("RabbitMq:HostName").Value, h =>
+        {
+            h.Username(configuration.GetSection("RabbitMq:UserName").Value);
+            h.Password(configuration.GetSection("RabbitMq:Password").Value);
+        });
+    });
+});
 
 new RootBootstrapper().BootstrapperRegisterServices(builder.Services, builder.Configuration);
 
